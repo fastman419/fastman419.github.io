@@ -9,8 +9,20 @@ $("chk").onclick = () => { const r = parseId($("fid").value); $("idout").innerHT
 const stat = l => { if (!l.expiry) return ["p-n", "No expiry date"]; const d = Math.round((Date.parse(l.expiry) - Date.now()) / 864e5); return d < 0 ? ["p-bad", "Expired " + (-d) + " days ago"] : d <= 60 ? ["p-soon", "Expires in " + d + " days"] : ["p-ok", "Valid"]; };
 const RV = { documents_checked:["p-ok", "Document checked by Recordance"], issuer_confirmed:["p-ok", "Confirmed with the issuing authority"], rejected:["p-bad", "Rejected on review"] };
 async function verify(id) {
-  const out = $("out"); out.innerHTML = '<div class="card">Checking…</div>';
-  let r; try { const res = await fetch(cfg.functionsUrl + "/verify-passport?id=" + encodeURIComponent(id)); r = await res.json(); if (!res.ok) throw new Error(r.error || "Not found"); } catch (e) { out.innerHTML = '<div class="verdict bad">❌ ' + esc(e.message || "Could not check") + "</div>"; return; }
+  const out = $("out");
+  // A skeleton while the check runs, and plain words (never server text) if it cannot finish.
+  out.innerHTML = '<div class="card" aria-busy="true"><span class="sr" role="status">Checking this passport…</span><span class="skb w4"></span><span class="skb w8"></span><span class="skb w6"></span><span class="skb w8"></span></div>';
+  const say = t => { out.innerHTML = '<div class="verdict bad" role="alert">' + esc(t) + '</div>'; };
+  if (navigator.onLine === false) return say("No internet. Connect to the internet to check this passport.");
+  const WHY = { 400:"That is not a passport number. Check it and try again.", 404:"No passport was found with that number. Check it and try again.", 429:"Too many checks. Please wait a minute and try again." };
+  let r; const ctl = typeof AbortController === "function" ? new AbortController() : null, t = setTimeout(() => ctl && ctl.abort(), 20000);
+  try {
+    const res = await fetch(cfg.functionsUrl + "/verify-passport?id=" + encodeURIComponent(id), ctl ? { signal:ctl.signal } : {});
+    if (!res.ok) return say(WHY[res.status] || "This passport could not be checked right now. Please try again in a moment.");
+    r = await res.json();
+  } catch (e) { return say(e && e.name === "AbortError" ? "The internet is too slow right now. Please try again in a moment." : navigator.onLine === false ? "No internet. Connect to the internet to check this passport." : "This passport could not be checked right now. Please try again in a moment."); }
+  finally { clearTimeout(t); }
+  if (!r || !r.payload || !r.payload.snapshot) return say("This passport could not be checked right now. Please try again in a moment.");
   const good = await sigOk(r.payload, r.signature), p = r.payload, s = p.snapshot, vd = !good ? ["bad", "❌ Signature does not match. Do not rely on this passport."] : r.status === "revoked" ? ["bad", "❌ This passport has been revoked."] : r.status === "expired" ? ["warn", "⚠️ Genuine, but expired on " + p.expiresAt.slice(0, 10) + ". Ask the farm for a new one."] : ["ok", "✅ Genuine Recordance passport. Unchanged since it was issued."];
   const rev = new Map((r.currentReviews || []).map(x => [x.type + "|" + x.number, x]));
   const lic = (s.licences || []).map(l => { const [c, t] = stat(l), x = rev.get(l.type + "|" + l.number), rr = x && RV[x.status]; return "<tr><td>" + esc(l.type) + "<div class='note'>" + esc(l.number) + " · " + esc(l.issuer) + "</div></td><td>" + esc(l.expiry || "—") + "</td><td><span class='pill " + c + "'>" + t + "</span>" + (rr ? "<div style='margin-top:4px'><span class='pill " + rr[0] + "'>" + rr[1] + "</span><div class='note'>" + esc(x.by) + ", " + esc((x.at || "").slice(0, 10)) + "</div></div>" : "<div class='note'>Declared by the farm</div>") + "</td></tr>"; }).join("");
@@ -20,7 +32,8 @@ async function verify(id) {
     (s.plots ? '<div class="card"><h2 style="margin-top:0">Plots</h2><table><tr><th>Plot</th><th>Crop</th><th>Size</th><th>GPS</th><th>Boundary</th></tr>' + (plots || "<tr><td colspan=5>None shared</td></tr>") + "</table></div>" : "") +
     (s.sprays ? '<div class="card"><h2 style="margin-top:0">Spray records</h2><p>' + s.sprays.entries + " spray entries. Harvests recorded before the waiting period ended: <b>" + s.sprays.harvestBeforeWaitingPeriod + "</b>.</p></div>" : "") +
     (s.records ? '<div class="card"><h2 style="margin-top:0">Record keeping</h2><p>' + s.records.monthsWithRecords + " months with records. Record strength " + s.records.strength + "/100. Last record " + esc(s.records.lastRecord || "—") + ".</p></div>" : "") +
-    '<p class="note">Self-reported by the farm unless a document shows a Recordance review. <button class="g noprint" onclick="print()">Print</button></p>';
+    '<p class="note">Self-reported by the farm unless a document shows a Recordance review. <button class="g noprint" id="printbtn">Print</button></p>';
+  const pb = $("printbtn"); if (pb) pb.onclick = () => print();
 }
 $("go").onclick = () => verify($("pid").value.trim());
 const q = new URLSearchParams(location.search).get("id"); if (q) { $("pid").value = q; verify(q); }

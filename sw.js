@@ -1,6 +1,10 @@
 /* Recordance service worker: works offline, keeps secrets out of the cache, and shows reminder notifications. */
-const VERSION = "rc-v4", SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/theme-init.js"];
-self.addEventListener("install", e => e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())));
+/* The build fills in VERSION (one per release) and PRECACHE (every file of the app), so the whole app, including parts
+   not opened yet (passport QR code, PDF statement reader), works offline after the first visit. */
+const VERSION = "rc-f6a0c3a17c", PRECACHE = ["/assets/Shell-Dm7Hmqip.js","/assets/bricolage-grotesque-latin-500-normal-DEDBoLFO.woff2","/assets/bricolage-grotesque-latin-700-normal-gtcctNPv.woff2","/assets/bricolage-grotesque-latin-800-normal-J50vIsBe.woff2","/assets/charts-Dum7mAeo.js","/assets/figtree-latin-400-normal-g7Dtegnw.woff2","/assets/figtree-latin-500-normal-BWnGEVsr.woff2","/assets/figtree-latin-600-normal-Cv_xCTDl.woff2","/assets/figtree-latin-700-normal-th6qEP7c.woff2","/assets/index-BLyB0hBt.js","/assets/index-C2_ZTHGq.css","/assets/index-CEcINbWg.js","/assets/index-Cw45Fql1.js","/assets/index-NKv8VHLB.js","/assets/index-YfZoNB_g.js","/assets/index-qoEdn5_Q.js","/assets/motion-DV2vGUFY.js","/assets/pdf.min-BF10Kdvk.js","/assets/pdf.worker.min-Dhy6DHo8.js","/assets/qrcode-CtkDkHKv.js","/assets/react-CVy_rpWq.js","/assets/supabase-CB7MGzWB.js","/assets/web-2y45pHkc.js","/assets/web-BCYWiJX6.js","/assets/web-BVZCetEZ.js","/assets/web-MFRw8Qkj.js","/icons/apple-touch-icon.png","/icons/favicon-32.png","/icons/icon-512.png","/index.html"];
+const SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/theme-init.js", "/boot.css", "/boot.js"];
+// One missing file must not stop the rest from being stored, so each is added on its own.
+self.addEventListener("install", e => e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled([...SHELL, ...PRECACHE].map(u => c.add(new Request(u, { cache:"reload" }))))).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", e => {
   const r = e.request, u = new URL(r.url);
@@ -9,9 +13,11 @@ self.addEventListener("fetch", e => {
   if (r.mode === "navigate") {
     // Only the app page itself is stored as the offline copy. Other pages (privacy, terms, verify) must never replace it.
     const app = u.pathname === "/" || u.pathname === "/index.html";
-    e.respondWith(fetch(r).then(res => { if (app && res.ok && res.type === "basic") { const c = res.clone(); caches.open(VERSION).then(x => x.put("/", c)); } return res; }).catch(() => app ? caches.match("/") : caches.match(u.pathname).then(h => h || caches.match("/")))); return;
+    e.respondWith(fetch(r).then(res => { if (app && res.ok && res.type === "basic") { const c = res.clone(); caches.open(VERSION).then(x => x.put("/", c)); } return res; }).catch(() => app ? caches.match("/", { ignoreVary:true }) : caches.match(u.pathname, { ignoreVary:true }).then(h => h || caches.match("/", { ignoreVary:true })))); return;
   }
-  e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => { if (res.ok && (u.pathname.startsWith("/assets/") || u.pathname.startsWith("/icons/"))) { const c = res.clone(); caches.open(VERSION).then(x => x.put(r, c)); } return res; })));
+  // App files have a new name every release, so matching on the address alone is safe ("ignoreVary": a server that
+  // varies by Origin would otherwise make the stored copy look different from the page's own request).
+  e.respondWith(caches.match(r, { ignoreVary:true }).then(hit => hit || fetch(r).then(res => { if (res.ok && (u.pathname.startsWith("/assets/") || u.pathname.startsWith("/icons/"))) { const c = res.clone(); caches.open(VERSION).then(x => x.put(r, c)); } return res; })));
 });
 self.addEventListener("push", e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data && e.data.text() }; }
