@@ -7,8 +7,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F4F7F0",
-  "theme_color": "#167A3D",
+  "background_color": "#F1F0EB",
+  "theme_color": "#F1F0EB",
   "categories": ["business", "productivity", "finance"],
   "lang": "en",
   "icons": [

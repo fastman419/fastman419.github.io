@@ -1,23 +1,23 @@
 /* Loading skeleton: drawn from plain HTML the moment the page opens, before the app's code arrives,
    and by the app itself while it opens a farm. Same colours as the app, light and dark. */
-:root{--sk-paper:#F4F7F0;--sk-card:#fff;--sk-line:#10261a1f;--sk-bar:#10261a14;--sk-shine:#10261a08;--sk-fg:#10261A;--sk-mu:#5B6F61;--sk-tint:#f6faf4;--sk-acc:#167A3D}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--sk-paper:#0E1812;--sk-card:#16251C;--sk-line:#ffffff24;--sk-bar:#ffffff1a;--sk-shine:#ffffff0d;--sk-fg:#E8F3E6;--sk-mu:#A3B8A8;--sk-tint:#1E3226;--sk-acc:#4ADE80}}
-:root[data-theme="dark"]{--sk-paper:#0E1812;--sk-card:#16251C;--sk-line:#ffffff24;--sk-bar:#ffffff1a;--sk-shine:#ffffff0d;--sk-fg:#E8F3E6;--sk-mu:#A3B8A8;--sk-tint:#1E3226;--sk-acc:#4ADE80}
+:root{--sk-paper:#F1F0EB;--sk-card:#fff;--sk-line:#10261a1f;--sk-bar:#10261a14;--sk-shine:#10261a08;--sk-fg:#10261A;--sk-mu:#5B6F61;--sk-tint:#F4F4EF;--sk-acc:#1F5135}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--sk-paper:#0D1210;--sk-card:#141A17;--sk-line:#ffffff24;--sk-bar:#ffffff1a;--sk-shine:#ffffff0d;--sk-fg:#E8F3E6;--sk-mu:#A3B8A8;--sk-tint:#1E3226;--sk-acc:#4ADE80}}
+:root[data-theme="dark"]{--sk-paper:#0D1210;--sk-card:#141A17;--sk-line:#ffffff24;--sk-bar:#ffffff1a;--sk-shine:#ffffff0d;--sk-fg:#E8F3E6;--sk-mu:#A3B8A8;--sk-tint:#1E3226;--sk-acc:#4ADE80}
 html,body{margin:0;background:var(--sk-paper)}
 .sk{display:flex;min-height:100vh;min-height:100dvh;background:var(--sk-paper);color:var(--sk-fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.sk-side{width:240px;flex-shrink:0;background:var(--sk-card);border-right:1.5px solid var(--sk-line);padding:18px 14px;box-sizing:border-box}
+.sk-side{width:240px;flex-shrink:0;background:#111814;border-right:1px solid #ffffff10;padding:18px 14px;box-sizing:border-box}
 .sk-main{flex:1;min-width:0;display:flex;flex-direction:column}
 .sk-top{height:58px;border-bottom:1.5px solid var(--sk-line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;box-sizing:border-box}
 .sk-body{padding:22px;max-width:1100px;width:100%;box-sizing:border-box}
-.sk-card{background:var(--sk-card);border:1.5px solid var(--sk-line);border-radius:16px;padding:18px;margin-bottom:14px}
+.sk-card{background:var(--sk-card);border:1px solid var(--sk-line);border-radius:8px;padding:18px;margin-bottom:14px}
 .sk-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .sk-b{display:block;height:12px;border-radius:8px;margin:8px 0;background:linear-gradient(90deg,var(--sk-bar) 0,var(--sk-shine) 40%,var(--sk-bar) 80%) 0 0/300% 100%;animation:sk-move 1.4s ease-in-out infinite}
 .sk-b.h{height:22px;width:55%}.sk-b.w8{width:80%}.sk-b.w6{width:60%}.sk-b.w4{width:40%}.sk-b.w3{width:30%}.sk-b.big{height:30px;width:45%}
 .sk-dot{width:36px;height:36px;border-radius:50%;background:var(--sk-bar)}
-.sk-logo{display:flex;align-items:center;gap:10px;margin-bottom:22px;font-weight:800;font-size:18px;color:var(--sk-acc)}
-.sk-logo i{width:30px;height:30px;border-radius:9px;background:var(--sk-acc);display:block}
-.sk-note{margin:0 0 14px;padding:12px 14px;border-radius:12px;background:var(--sk-tint);border:1.5px solid var(--sk-line);font-size:15px;line-height:1.45;color:var(--sk-fg)}
-.sk-note[hidden]{display:none}.sk-note b{display:block;margin-bottom:2px}.sk-note button{margin-top:10px;min-height:44px;padding:0 18px;border-radius:12px;border:1.5px solid var(--sk-fg);background:var(--sk-card);color:var(--sk-fg);font:inherit;font-weight:700;cursor:pointer}
+.sk-logo{display:flex;align-items:center;gap:10px;margin-bottom:22px;font:600 18px Georgia,serif;color:#F1F4F1}
+.sk-logo i{width:30px;height:30px;border-radius:6px;background:#1F5135;display:block}
+.sk-note{margin:0 0 14px;padding:12px 14px;border-radius:8px;background:var(--sk-tint);border:1px solid var(--sk-line);font-size:15px;line-height:1.45;color:var(--sk-fg)}
+.sk-note[hidden]{display:none}.sk-note b{display:block;margin-bottom:2px}.sk-note button{margin-top:10px;min-height:44px;padding:0 18px;border-radius:6px;border:1px solid var(--sk-fg);background:var(--sk-card);color:var(--sk-fg);font:inherit;font-weight:700;cursor:pointer}
 .sk-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @keyframes sk-move{0%{background-position:100% 0}100%{background-position:0 0}}
 @media(prefers-reduced-motion:reduce){.sk-b{animation:none}}
