@@ -32,7 +32,8 @@ async function verify(id) {
     (s.plots ? '<div class="card"><h2 style="margin-top:0">Plots</h2><table><tr><th>Plot</th><th>Crop</th><th>Size</th><th>GPS</th><th>Boundary</th></tr>' + (plots || "<tr><td colspan=5>None shared</td></tr>") + "</table></div>" : "") +
     (s.sprays ? '<div class="card"><h2 style="margin-top:0">Spray records</h2><p>' + s.sprays.entries + " spray entries. Harvests recorded before the waiting period ended: <b>" + s.sprays.harvestBeforeWaitingPeriod + "</b>.</p></div>" : "") +
     (s.records ? '<div class="card"><h2 style="margin-top:0">Record keeping</h2><p>' + s.records.monthsWithRecords + " months with records. Record strength " + s.records.strength + "/100. Last record " + esc(s.records.lastRecord || "—") + ".</p></div>" : "") +
-    '<p class="note">Self-reported by the farm unless a document shows a Recordance review. <button class="g noprint" id="printbtn">Print</button></p>';
+    '<p class="note">Self-reported by the farm unless a document shows a Recordance review. <button class="g noprint" id="printbtn">Print</button></p>' +
+    '<p class="note noprint">Something wrong with this passport? <a href="mailto:Princetorishe123@gmail.com?subject=' + encodeURIComponent("Report passport " + p.id) + '">Report it to Recordance</a>.</p>';
   const pb = $("printbtn"); if (pb) pb.onclick = () => print();
 }
 $("go").onclick = () => verify($("pid").value.trim());
