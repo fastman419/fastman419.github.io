@@ -11,5 +11,10 @@
   }
   setTimeout(show, 6000);
   window.addEventListener("offline", function () { setTimeout(show, 1500); });
-  if (btn) btn.addEventListener("click", function () { location.reload(); });
+  // "Try again" with internet: forget the stored copy of the app and fetch it fresh, so a stored copy that does not start can
+  // never trap the phone on this screen. Without internet: just try again (the records on the phone are never touched).
+  if (btn) btn.addEventListener("click", function () {
+    if (navigator.onLine !== false && window.caches) { caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }).catch(function () {}).then(function () { location.replace("/?fresh=" + Date.now()); }); }
+    else location.reload();
+  });
 })();
